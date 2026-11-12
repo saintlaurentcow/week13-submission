@@ -43,7 +43,10 @@ public class Window extends JFrame{
         //Keep the main sky and ground in a single column
         GridBagConstraints c = new GridBagConstraints();
         c.gridwidth=GridBagConstraints.REMAINDER;
-        c.fill=GridBagConstraints.HORIZONTAL;
+        c.fill=GridBagConstraints.BOTH;
+
+        c.weightx = 1.0;
+        c.weighty = 1.0;
 
         this.add(sky,c);
         this.add(ground,c);
