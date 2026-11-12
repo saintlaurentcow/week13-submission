@@ -35,12 +35,40 @@ public abstract class Plant extends JPanel implements Growable, SkyObserver{
 
 
     public Plant(Point p, int size, Sky sky, Ground ground) {
-        seedState = new SeedState(this);
-        seedlingState = new SeedlingState(this);
-        juvenileState = new JuvenileState(this);
-        adultState = new AdultState(this);
-        deadState = new DeadState(this);
+        seedState = new LambdaState("SEED",
+    g -> setBackground(new Color(79, 46, 9)),
+    life -> {
+        fightingPower = 2;
+        if(life > growthDelay) state = seedlingState;
+    });
 
+seedlingState = new LambdaState("SEEDLING",
+    g -> {
+        setBackground(new Color(2, 184, 9));
+        g.setColor(new Color(2, 184, 9));
+        g.fillOval(0, 0, getBounds().width, getBounds().height);
+    },
+    life -> {
+        fightingPower = 3;
+        if(life > growthDelay * 2) state = juvenileState;
+    });
+
+juvenileState = new LambdaState("JUVENILE",
+    g -> setBackground(new Color(1, 120, 5)),
+    life -> {
+        fightingPower = 4;
+        if(life > growthDelay * 3) state = adultState;
+    });
+
+adultState = new LambdaState("ADULT",
+    g -> setBackground(new Color(1, 71, 4)),
+    life -> {
+        if(life > growthDelay * 4) state = deadState;
+    });
+
+deadState = new LambdaState("DEAD",
+    g -> setBackground(Color.BLACK),
+    life -> fightingPower = 0);
         state = seedState;
 
         this.sky = sky;
