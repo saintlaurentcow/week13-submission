@@ -4,6 +4,9 @@ import growables.Growable;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.swing.*;
 import supplementary.Window;
 
@@ -30,11 +33,17 @@ public class Ground extends JPanel{
     }
 
     public void tick() {
+        List<Growable> snapshot = getGrowables();
+        List<Consumer<Ground>> actions = snapshot.parallelStream()
+        .flatMap(g -> g.think(snapshot).stream())
+        .collect(Collectors.toList());
+
+        actions.forEach(a -> a.accept(this));
+
         ArrayList<Growable> dead = getDead();
-        getGrowables().stream().forEach(i -> i.tick());
-        dead.stream().forEach(i -> i.prepareForRemoval());
-        dead.stream().forEach(i -> delete(i));
-        getEmptyPatches().stream().forEach(i -> delete(i));
+        dead.forEach(i-> i.prepareForRemoval());
+        dead.forEach(i -> delete(i));
+        getEmptyPatches().forEach(i -> delete(i));
         repaint();
         revalidate();
     }
