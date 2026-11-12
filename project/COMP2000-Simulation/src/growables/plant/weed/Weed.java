@@ -9,6 +9,7 @@ import placed_objects.Ground;
 import placed_objects.sky.Sky;
 import supplementary.Direction;
 import supplementary.Window;
+import growables.plant.LambdaState;
 
 public class Weed extends Plant {
 
@@ -28,8 +29,16 @@ public class Weed extends Plant {
 
     public Weed(Point position, Sky sky, Ground ground) {
         super(position, size, sky, ground);
-        super.adultState = new WeedAdultState(this);
         super.growthDelay = growthDelay;
+        super.adultState = new LambdaState("ADULT",
+    g -> { },   //Weeds draw nothing extra
+    life -> {
+        fightingPower = 5;
+        spread();
+        if (life > 20000 + (random.nextInt(0, 20) * 1000)) {
+            state = deadState;
+        }
+    });
 
         this.sky = sky;
         environmentState = sky.getState();

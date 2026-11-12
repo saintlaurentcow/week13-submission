@@ -11,7 +11,12 @@ public abstract class Flower extends Plant {
 
     public Flower(Point p, int size, Sky sky, Ground ground) {
         super(p, size, sky, ground);
-        bloomState = new BloomState(this);
+        bloomState = new LambdaState("BLOOMING",
+    g -> setBackground(Color.RED),
+    life -> {
+        if (life > growthDelay * 4) state = deadState;
+        bloom();
+    });
     }
 
     public void bloom(){    //Display the flower blooming

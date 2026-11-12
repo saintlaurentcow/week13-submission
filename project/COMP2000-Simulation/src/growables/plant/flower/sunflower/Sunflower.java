@@ -8,6 +8,7 @@ import placed_objects.Ground;
 import placed_objects.Patch;
 import placed_objects.sky.Sky;
 import supplementary.Radius;
+import growables.plant.LambdaState;
 
 public class Sunflower extends Flower {
     int spreadNum = 1;
@@ -17,19 +18,69 @@ public class Sunflower extends Flower {
     Patch<Sunflower> patch;
 
     public Sunflower(Point position, Sky sky, Ground ground) {
-        super(position, SIZE, sky, ground);
-        super.growthDelay = growthDelay;
+    super(position, SIZE, sky, ground);
+    super.growthDelay = growthDelay;
 
-        super.seedState = new SunflowerSeedState(this);
-        super.juvenileState = new SunflowerJuvenileState(this);
-        super.adultState = new SunflowerAdultState(this);
-        super.bloomState = new SunflowerBloomState(this);
+    super.seedState = new LambdaState("SEED",
+        g -> {
+            setOpaque(false);
+            g.setColor(new Color(79, 46, 9));
+            g.fillOval(0, 0, getBounds().width, getBounds().height);
+            setBounds(this.position.x - SIZE / 4, this.position.y - SIZE / 4, SIZE / 4, SIZE / 4);
+        },
+        life -> {
+            fightingPower = 2;
+            if (life > growthDelay) state = seedlingState;
+        });
 
-        super.state = seedState;
+    super.juvenileState = new LambdaState("JUVENILE",
+        g -> {
+            setBounds(this.position.x - SIZE / 4, this.position.y - SIZE / 4, SIZE / 2, SIZE / 2);
+            g.setColor(new Color(2, 184, 9));
+            g.fillOval(0, 0, getBounds().width, getBounds().height);
+        },
+        life -> {
+            fightingPower = 4;
+            if (life > growthDelay * 3) state = adultState;
+        });
 
-        environmentState = sky.getState();
-    }
+    super.adultState = new LambdaState("ADULT",
+        g -> {
+            g.setColor(new Color(1, 71, 4));
+            g.fillOval(0, 0, SIZE, SIZE);
+            setBounds(this.position.x - SIZE / 2, this.position.y - SIZE / 2, SIZE, SIZE);
+        },
+        life -> {
+            fightingPower = 6;   //Sunflowers slightly more resilient during night
+            if (life > growthDelay * bloomTime) {
+                state = deadState;
+            } else if (environmentState.equals("SUNNY")) {
+                state = bloomState;
+            }
+        });
 
+    super.bloomState = new LambdaState("BLOOMING",
+        g -> {
+            g.setColor(Color.YELLOW);
+            g.fillOval(0, 0, getBounds().width, getBounds().height);
+            g.setColor(new Color(79, 46, 9));
+            g.fillOval(getBounds().width / 4, getBounds().height / 4, getBounds().width / 2, getBounds().height / 2);
+        },
+        life -> {
+            fightingPower = 5;
+            if (life > growthDelay * bloomTime) {
+                state = deadState;
+            } else if (environmentState.equals("SUNNY")) {
+                bloom();
+            } else {
+                state = adultState;
+            }
+        });
+
+    super.state = seedState;
+
+    environmentState = sky.getState();
+}
     @Override
     public void prepareForRemoval() {
         super.prepareForRemoval();
