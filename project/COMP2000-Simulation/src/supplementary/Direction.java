@@ -11,8 +11,9 @@ public class Direction {
     public double dy;
 
     public Direction(double x, double y) {
-        Math.clamp(x, -20, 20);
-        Math.clamp(y, -20, 20);
+        if (x == 0 && y == 0){
+            x = 1;
+        }
 
         this.x = x;
         this.y = y;

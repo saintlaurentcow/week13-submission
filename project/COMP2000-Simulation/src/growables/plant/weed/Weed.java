@@ -55,7 +55,7 @@ public class Weed extends Plant {
 
     @Override
     public void increaseSpreadNum(double factor) {
-        spreadNum = (int) factor * spreadNum;
+        spreadNum = (int) (factor * spreadNum);
     }
 
     @Override

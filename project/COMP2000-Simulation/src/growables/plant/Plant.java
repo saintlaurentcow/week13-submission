@@ -73,6 +73,7 @@ public abstract class Plant extends JPanel implements Growable, SkyObserver{
 
     @Override
     public void prepareForRemoval() {
+        sky.removeObserver(this);
         
     }
 

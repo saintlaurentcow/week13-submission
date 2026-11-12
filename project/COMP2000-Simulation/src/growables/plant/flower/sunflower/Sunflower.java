@@ -32,6 +32,7 @@ public class Sunflower extends Flower {
 
     @Override
     public void prepareForRemoval() {
+        super.prepareForRemoval();
         if(patch != null) {
             patch.removeFromPatch(this);
         }
@@ -51,7 +52,7 @@ public class Sunflower extends Flower {
 
     @Override
     public void increaseSpreadNum(double factor) {
-        spreadNum = (int) factor * spreadNum;
+        spreadNum = (int) (factor * spreadNum);
     }
 
     @Override

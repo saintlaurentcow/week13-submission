@@ -1,7 +1,9 @@
 package placed_objects.sky;
 import java.awt.*;
 import java.time.*;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.swing.JPanel;
 import supplementary.Window;
 
@@ -15,14 +17,14 @@ public class Sky extends JPanel implements SkySubject{
     public long dayTime;
     public int hour;    //Divide by 1000 for the hour
 
-    private final ArrayList<SkyObserver> observers;
+    private final List<SkyObserver> observers;
 
     public Sky() {
         sunnyState = new SunnyState(this);
         nightState = new NightState(this);
         state = sunnyState;
 
-        observers = new ArrayList<>();
+        observers = new CopyOnWriteArrayList<>(); 
 
         startTime = Instant.now();
         this.setPreferredSize(new Dimension(Window.WIN_WIDTH, Window.WIN_HEIGHT/4));
