@@ -58,13 +58,14 @@ public class Weed extends Plant {
         spreadNum = (int) (factor * spreadNum);
     }
 
-    @Override
-    public void spread() {
-        if(spent) {
-            return;
-        }
+@Override
+public void spread() {
+    if(spent) {
+        return;
+    }
 
-        for(int i = 0; i < spreadNum; i++) {
+    for(int i = 0; i < spreadNum; i++) {
+        pending.add(g -> {
             double newX = position.x + direction.dx * random.nextInt(15, 20);
             double newY = position.y + direction.dy * random.nextInt(15, 20);
             try {
@@ -73,7 +74,6 @@ public class Weed extends Plant {
                 ground.addGrowable(child1);
                 //Small chance to create an offshoot vine
                 if(random.nextInt(0, 5) == 0) {
-                    //Create new weed with random direction
                     Direction newDir = new Direction(random.nextInt(-20, 20), random.nextInt(-20, 20));
                     double startX = position.x + newDir.dx * random.nextInt(15, 20);
                     double startY = position.y + newDir.dy * random.nextInt(15, 20);
@@ -87,8 +87,9 @@ public class Weed extends Plant {
             } catch(ObjectLimitExceededException e) {
                 System.out.println("Too many objects, cannot create weed");
             }
-        }
+        });
     }
+}
 
     @Override
     public String toString() {
