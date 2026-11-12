@@ -62,10 +62,11 @@ public class Sunflower extends Flower {
     }
 
     @Override
-    public void spread() {
-        Radius radius = new Radius(position, spreadRadius);
-        for(int i = 0; i < spreadNum; i++) {
-            Point newPoint = radius.getRandomPoint();
+public void spread() {
+    Radius radius = new Radius(position, spreadRadius);
+    for(int i = 0; i < spreadNum; i++) {
+        Point newPoint = radius.getRandomPoint();
+        pending.add(g -> {
             try {
                 Sunflower child = new Sunflower(newPoint, sky, ground);
                 ground.addGrowable(child);
@@ -81,9 +82,10 @@ public class Sunflower extends Flower {
             } catch(OutOfPatchBoundsException e) {
                 //Could not add child to patch
             }
-        }
+        });
     }
-
+}
+         
     public void givePatch(Patch<Sunflower> p) {
         try {
             p.addToPatch(this);
