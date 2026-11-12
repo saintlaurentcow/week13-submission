@@ -1,8 +1,7 @@
 package supplementary;
+
 import growables.Growable;
 import java.awt.*;
-import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.*;
 import placed_objects.Ground;
 import placed_objects.Patch;
@@ -23,15 +22,12 @@ public class Window extends JFrame{
         sky = new Sky();
         ground = new Ground();
 
-        timer = new Timer();
-        TimerTask tick = new TimerTask() {
-            @Override 
-            public void run() {
-                ground.tick();
-                sky.tick();
-            }
-        };
-        timer.schedule(tick, 20, 20);
+        timer = new Timer(20, e -> {
+            ground.tick();
+            sky.tick();
+        });
+        timer.start();
+       
 
         //Basic window props
         this.setTitle("GAASK Plant Simulation COMP2000");
