@@ -4,6 +4,8 @@ import growables.Growable;
 import java.awt.*;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import javax.swing.*;
 import placed_objects.Ground;
 import placed_objects.sky.Sky;
@@ -29,6 +31,8 @@ public abstract class Plant extends JPanel implements Growable, SkyObserver{
     public int spreadRadius;     //How far a plant can spread its seeds
     public int fightingPower = 5; //Scaled from 0 to 10 where
     public boolean fighting = false;
+    protected final List<Consumer<Ground>> pending = new ArrayList<>();
+
 
     public Plant(Point p, int size, Sky sky, Ground ground) {
         seedState = new SeedState(this);
@@ -124,18 +128,24 @@ public abstract class Plant extends JPanel implements Growable, SkyObserver{
     }
 
     @Override
-    public void tick() {
-        Growable g = isColliding();
-        if(g != null && !fighting && !g.getFighting()) {
-          fightAgainst(g);  
-        }
+    public List<Consumer<Ground>> think(List<Growable> snapshot){
+        List<Consumer<Ground>> actions = new ArrayList<>();
 
-        Instant now = Instant.now();
-        long lifespan = (Duration.between(startTime, now)).toMillis();
+        snapshot.stream()
+        .filter(o -> o != this && getHitbox().intersects(o.getHitbox()))
+        .findFirst()
+        .ifPresent(o -> actions.add(g -> {
+            if(!fighting && !o.getFighting()) {
+                fightAgainst(o);
+            }
+        }));
 
-        state.checkChange(lifespan);
-        revalidate();
-        repaint();
+    long lifespan = Duration.between(startTime, Instant.now()).toMillis();
+    state.checkChange(lifespan);
+
+    actions.addAll(pending);
+    pending.clear();
+    return actions;
     }
 
     @Override

@@ -1,5 +1,9 @@
 package growables;
 import java.awt.*;
+import java.util.List;
+import java.util.function.Consumer;
+import placed_objects.Ground;
+
 
 public interface Growable {
     public void spread();     //Different things spread in different ways, e.g. wind, bees, spores
@@ -7,7 +11,7 @@ public interface Growable {
     public String getState();
     public void increaseSpreadNum(double factor);
     public void increaseLifespan(double factor);
-    public void tick();
+    public List<Consumer<Ground>> think(List<Growable> snapshot);
     public Rectangle getHitbox();
     public void fightAgainst(Growable g);
     public int getFightingPower();
