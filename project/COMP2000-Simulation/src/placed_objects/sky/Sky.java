@@ -6,6 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
 import supplementary.Window;
+import supplementary.Census;
 
 public class Sky extends JPanel implements SkySubject{
     SkyState sunnyState;
@@ -18,6 +19,7 @@ public class Sky extends JPanel implements SkySubject{
     public int hour;    //Divide by 1000 for the hour
 
     private final List<SkyObserver> observers;
+    private Census census = new Census();
 
     public Sky() {
         sunnyState = new SunnyState(this);
@@ -37,6 +39,10 @@ public class Sky extends JPanel implements SkySubject{
         state.checkChange();
         revalidate();
         repaint();
+    }
+
+    public void setCensus(Census census){
+        this.census = census;
     }
 
     public String getState() {
@@ -64,5 +70,19 @@ public class Sky extends JPanel implements SkySubject{
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         state.paintComponent(g);
+        drawCensus(g);
     }
+
+    private void drawCensus(Graphics g) {
+        int x = 10;
+        int y = getHeight() - 110;
+        g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(x, y, 230, 100);
+        g.setColor(Color.WHITE);
+        g.drawString("Plants: " + census.total(), x + 10, y + 20);
+        g.drawString("Sunflowers: " + census.count("Sunflower"), x + 10, y + 38);
+        g.drawString("Weeds: " + census.count("Weed"), x + 10, y + 56);
+        g.drawString("Blooming: " + census.countState("BLOOMING"), x + 10, y + 74);
+       
+}
 }

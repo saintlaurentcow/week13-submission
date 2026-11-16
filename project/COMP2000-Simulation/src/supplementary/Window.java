@@ -22,17 +22,9 @@ public class Window extends JFrame{
         sky = new Sky();
         ground = new Ground();
 
-        timer = new Timer(20, e -> {
-            ground.tick();
-            sky.tick();
-        });
-        timer.start();
-       
-
         //Basic window props
         this.setTitle("GAASK Plant Simulation COMP2000");
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //Exit appliction when x pressed
-        this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //Exit application when x pressed
         this.setResizable(false);
         this.setLayout(new GridBagLayout());    //Main window only contains sky and ground
 
@@ -46,12 +38,21 @@ public class Window extends JFrame{
 
         this.add(sky,c);
         this.add(ground,c);
-        
+
         this.pack();
+        this.setLocationRelativeTo(null);   //Centre after pack so the size is known
         this.setVisible(true);
+
+        //Swing timer runs on the event dispatch thread, so it is safe to touch components
+        timer = new Timer(20, e -> {
+            ground.tick();
+            sky.setCensus(ground.getCensus());
+            sky.tick();
+        });
+        timer.start();
     }
 
-    //Sky will deal with it's own components, so anything added to the window 
+    //Sky will deal with it's own components, so anything added to the window
     //must be added to the ground.
 
     public Sky getSky() {
