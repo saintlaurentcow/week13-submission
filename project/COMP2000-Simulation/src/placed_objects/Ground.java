@@ -9,11 +9,21 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.swing.*;
 import supplementary.Window;
+import java.util.stream.Stream;
+import supplementary.Census;
+
+
 
 public class Ground extends JPanel{
     static final int MAX_OBJECTS = 512;
     final ArrayList<Growable> growables;
     final ArrayList<Patch<? extends Growable>> patches;
+
+    public static boolean parallel = true;
+    private long totalNanos;
+    private int tickCount;
+
+    private volatile Census census = new Census();
 
     public Ground() {
         this.setPreferredSize(new Dimension(Window.WIN_WIDTH, Window.WIN_HEIGHT/4*3));
