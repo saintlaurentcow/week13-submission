@@ -7,19 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.swing.*;
-import supplementary.Window;
 import java.util.stream.Stream;
+import javax.swing.*;
 import supplementary.Census;
-
-
+import supplementary.Window;
 
 public class Ground extends JPanel{
     static final int MAX_OBJECTS = 512;
     final ArrayList<Growable> growables;
     final ArrayList<Patch<? extends Growable>> patches;
 
-    public static boolean parallel = true;
+    public static boolean parallel = true;   //Set to false to run the sequential version for timing
     private long totalNanos;
     private int tickCount;
 
@@ -43,17 +41,35 @@ public class Ground extends JPanel{
     }
 
     public void tick() {
-        List<Growable> snapshot = getGrowables();
-        List<Consumer<Ground>> actions = snapshot.parallelStream()
-        .flatMap(g -> g.think(snapshot).stream())
-        .collect(Collectors.toList());
+        long start = System.nanoTime();
 
+        //Phase 1: every plant decides what it wants to do (parallel unless switched off)
+        List<Growable> snapshot = getGrowables();
+        Stream<Growable> stream = parallel ? snapshot.parallelStream() : snapshot.stream();
+        List<Consumer<Ground>> actions = stream
+                .flatMap(g -> g.think(snapshot).stream())
+                .collect(Collectors.toList());
+
+        totalNanos += System.nanoTime() - start;
+        tickCount++;
+        if (tickCount % 200 == 0) {
+            System.out.printf("%s, %d plants: %.3f ms per tick%n",
+                    parallel ? "parallel" : "sequential", snapshot.size(), totalNanos / 200 / 1e6);
+            totalNanos = 0;
+        }
+
+        //Phase 2 (one thread): apply the changes to the world
         actions.forEach(a -> a.accept(this));
 
+        //Phase 3: clean up the dead
         ArrayList<Growable> dead = getDead();
-        dead.forEach(i-> i.prepareForRemoval());
+        dead.forEach(i -> i.prepareForRemoval());
         dead.forEach(i -> delete(i));
         getEmptyPatches().forEach(i -> delete(i));
+
+        //Count everything with the custom collector for the on-screen stats
+        census = getGrowables().parallelStream().collect(Census.collector());
+
         repaint();
         revalidate();
     }
@@ -79,6 +95,10 @@ public class Ground extends JPanel{
     public void delete(Patch<? extends Growable> p) {
         patches.remove(p);
         remove(p);
+    }
+
+    public Census getCensus() {
+        return census;
     }
 
     public ArrayList<Growable> getGrowables() {
